@@ -7,8 +7,24 @@ authoring distribution and the math-exercise `variants-review.py` helper first.
 Use a Python environment with the native authoring dependencies, including SymPy
 and PyYAML, and Quarto available on PATH. The template's legacy `scripts/setup.py`
 alone installs the individual extensions and is insufficient for this route.
-Follow the assessment pack's native authoring installation guide; don't copy
-native modules out of unrelated working directories.
+From the saved template checkout, install its reviewed native pack:
+
+```sh
+python -m pip install sympy==1.13.3 PyYAML==6.0.2
+python scripts/install-native-authoring.py
+```
+
+This single-purpose bootstrap fetches the exact canonical assessment installer
+and passes every component ref from `native-authoring-refs.json` explicitly.
+That file includes the native authoring math PR32; using only assessment's
+default registry can select the older math PR31 without native authoring.
+The same command and shared refs drive the artifact-only CI proof. Installation
+replaces only the canonical pack's owned extensions, verifies installed file
+hashes, and records provenance under `.private-extensions/resolved-repos.json`.
+It makes no teaching decisions. Git, Quarto1.8.27 and network access to the
+public source repositories are required. This is a reviewed draft tuple, not a
+release or a student rollout authorization. Do not run legacy `scripts/setup.py`
+afterward: it installs individual extensions independently of this tuple.
 
 ## Prepare and review one question
 
@@ -33,8 +49,9 @@ successful save rebuilds the view. If the source changed or a response is
 uncertain, use **Rebuild review** before another decision. Save editor changes
 first; the helper reads disk and does not watch files. Stop with Ctrl-C.
 
-The current view contains resolved text previews and test reports, rather than
-full filter-rendered multilingual cards or a live Check button. For terminal-only
+The installed helper links to student previews rendered through the canonical
+Quarto filters and shows native test reports. Browser runtime and preview
+acceptance remain separate from the task transport check below. For terminal-only
 use, run the same helper with `--no-browser`; it prints the local URL.
 
 ## Read-only resolution

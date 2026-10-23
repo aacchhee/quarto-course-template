@@ -21,17 +21,10 @@ jobs:
           version: '1.8.27'
       - name: Install native authoring dependencies
         run: python -m pip install sympy==1.13.3 PyYAML==6.0.2
-      - name: Check out canonical package installer
-        uses: actions/checkout@v6
-        with:
-          repository: Erasmus-CTM/ctm-assessment
-          ref: 9504873c236e838f644c1a2807720ad419734554
-          path: .native-pack/assessment
       - name: Prepare saved synthetic file with spaces
         run: python scripts/check-native-tasks.py --project "$RUNNER_TEMP/template task project" --prepare
-      - name: Install exact published review pack with canonical installer
-        run: |
-          python .native-pack/assessment/scripts/install-project.py --project "$RUNNER_TEMP/template task project" --review-refs 'ctm-libs=be9e755ea2dd6458a7191c2941a69d1bf1f9dd69,math-exercise=c044d10b386bc18f56758d63003fdd1c1d9d0dfe,ctm-checkers=5976f1a97b78bd81d4d7a3a954ff2102df8c6e37,py-exercise=18e6f1eb00713fdefbfc3d040c6a05eb88c6c314,pyodide-interaktiv=0617c97051f51cb66cdb3b92d83e9e32af1e2bde,jsxgraph=e4ad81d82e1b56f86765026a3dd26f6975d29d57'
+      - name: Install the template's explicit reviewed native pack
+        run: python scripts/install-native-authoring.py --project "$RUNNER_TEMP/template task project"
       - name: Verify installed task resolution and local helper transport
         run: python scripts/check-native-tasks.py --project "$RUNNER_TEMP/template task project"
       - uses: actions/upload-artifact@v4

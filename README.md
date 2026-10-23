@@ -9,11 +9,16 @@ extensions maintained by `Erasmus-CTM`.
 ## New course checklist
 
 1.  On GitHub, choose **Use this template → Create a new repository**.
-2.  Configure the GitHub App variable and private-key secret in the new
-    repository.
+2.  Review the existing publishing workflow's GitHub App configuration if you
+    intend to use it. Local native authoring and its artifact-only task check
+    fetch public reviewed sources and require no App secrets.
 3.  Clone the new course repository locally.
-4.  Install PyYAML with `python -m pip install pyyaml`.
-5.  Run `python scripts/setup.py`.
+4.  For the reviewed native authoring pack, install dependencies with
+    `python -m pip install sympy==1.13.3 PyYAML==6.0.2`.
+5.  Run `python scripts/install-native-authoring.py`; see
+    [the reviewed authoring installation](docs/variants-authoring.md) for its
+    explicit draft tuple and scope. Legacy `scripts/setup.py` installs individual
+    extensions and does not provide this native authoring pack.
 6.  Edit `_quarto.yml`, `index.qmd`, and the example pages for the new
     course.
 7.  Run `quarto render` before the first push.
@@ -62,10 +67,13 @@ Install the following on your development machine:
 -   Quarto
 -   VS Code is recommended but optional
 
-You must also have GitHub access to the private `Erasmus-CTM` extension
-repositories.
+The native authoring route above uses public reviewed sources. The retained
+legacy setup and publishing configuration below describe the separate older
+individual-extension workflow and its private-access assumptions. They do not
+install the native authoring pack. Use `scripts/install-native-authoring.py`
+to install or refresh that pack; do not rerun `scripts/setup.py` afterward.
 
-## First-time local setup
+## Legacy first-time local setup
 
 Install PyYAML:
 
@@ -128,7 +136,7 @@ quarto render
 
 A full `quarto render` is recommended before pushing changes.
 
-## Updating the private extensions
+## Legacy updates of individual extensions
 
 Run:
 
