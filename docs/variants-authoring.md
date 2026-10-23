@@ -52,8 +52,19 @@ them. The `/_variants/` CODEOWNERS entry requests review by the template
 maintainer; replace it with your course's teaching maintainer. It adds no
 required-code-owner branch protection rule.
 
-This slice adds no workflow activation, publishing step, deployment, automatic
-generation or filesystem watcher. GitHub review/check workflow templates remain
-a separately reviewed integration. Ordinary `quarto preview` detection is still
+The editor tasks add no publishing step, deployment, automatic generation or
+filesystem watcher. GitHub teaching-decision workflows remain a separately
+reviewed integration. Ordinary `quarto preview` detection is still
 unresolved; these tasks use the explicit native review route and do not weaken
 the default required-approval publish gate.
+
+The separate **Installed native authoring tasks (artifacts only)** PR check now
+installs a frozen published review pack through its canonical assessment
+installer into a temporary minimal project. It validates both process tasks,
+including a saved filename with spaces, resolves one synthetic proposal with
+real teacher and authored tests, checks that resolution leaves its manifest
+unchanged, and fetches the token-bound local review page. The fixture makes no
+teaching decisions. Its artifacts record the installed component commits.
+This check does not exercise the legacy `scripts/setup.py`, publish a site,
+or establish VS Code GUI, multilingual student rendering, ordinary-preview
+detection, browser grading, or project-wide strict approval acceptance.
