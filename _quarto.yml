@@ -2,9 +2,7 @@ project:
   type: website
 
 filters:
-  - pyodide-interaktiv
-  - math-exercise
-  - py-exercise
+  - ctm-assessment
 
 website:
   title: "Matematikk 3A"

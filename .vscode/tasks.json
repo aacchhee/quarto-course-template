@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CTM: Review variants",
+      "type": "process",
+      "command": "${input:ctmPython}",
+      "args": [
+        "${workspaceFolder}/_extensions/math-exercise/variants-review.py",
+        "--project", "${workspaceFolder}",
+        "--file", "${relativeFile}",
+        "--label", "${input:ctmVariantLabel}"
+      ],
+      "options": {"cwd": "${workspaceFolder}"},
+      "problemMatcher": [],
+      "presentation": {"reveal": "always", "panel": "dedicated"},
+      "detail": "Review retained proposals for the active saved file; decisions save through the installed native wrapper. Stop with Ctrl-C."
+    },
+    {
+      "label": "CTM: Check variants (resolve proposals)",
+      "type": "process",
+      "command": "${input:ctmPython}",
+      "args": [
+        "${workspaceFolder}/_extensions/math-exercise/question-variants.py",
+        "--project", "${workspaceFolder}",
+        "--file", "${relativeFile}",
+        "--label", "${input:ctmVariantLabel}",
+        "review"
+      ],
+      "options": {"cwd": "${workspaceFolder}"},
+      "problemMatcher": [],
+      "presentation": {"reveal": "always", "panel": "dedicated"},
+      "detail": "Read-only resolution of retained proposals. Inspect tests and warnings in JSON output; this is not a project-wide strict approval check."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "ctmVariantLabel",
+      "type": "promptString",
+      "description": "Exact saved math-exercise label (#| label:), unique in the project"
+    },
+    {
+      "id": "ctmPython",
+      "type": "promptString",
+      "description": "Python executable with the installed native authoring dependencies (python, python3, or an absolute path)",
+      "default": "python"
+    }
+  ]
+}

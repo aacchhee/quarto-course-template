@@ -1,0 +1,3 @@
+# New courses should replace this owner with their own teaching maintainer.
+# This requests review; it does not configure a required-code-owner merge gate.
+/_variants/ @aacchhee

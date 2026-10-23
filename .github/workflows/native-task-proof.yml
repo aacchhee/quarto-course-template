@@ -1,0 +1,77 @@
+name: Installed native authoring tasks (artifacts only)
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  native-tasks:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.8.27'
+      - name: Install native authoring dependencies
+        run: python -m pip install sympy==1.13.3 PyYAML==6.0.2
+      - name: Prepare saved synthetic file with spaces
+        run: python scripts/check-native-tasks.py --project "$RUNNER_TEMP/template task project" --prepare
+      - name: Install the template's explicit reviewed native pack
+        run: python scripts/install-native-authoring.py --project "$RUNNER_TEMP/template task project"
+      - name: Verify installed task resolution and local helper transport
+        run: python scripts/check-native-tasks.py --project "$RUNNER_TEMP/template task project"
+      - name: Render the existing ordinary exercise page through the canonical filter
+        env:
+          PROOF_PROJECT: ${{ runner.temp }}/template task project
+        run: |
+          python - <<'PYRENDER'
+          import os, pathlib, shutil, subprocess
+          project = pathlib.Path(os.environ['PROOF_PROJECT'])
+          for name in ('_quarto.yml', 'styles.css', 'index.qmd'):
+              shutil.copy2(name, project / name)
+          for name in ('pages', '_includes'):
+              shutil.copytree(name, project / name, dirs_exist_ok=True)
+          subprocess.run(['quarto', 'render', 'pages/page3.qmd'], cwd=project, check=True)
+          import json, re
+          from html.parser import HTMLParser
+          html = (project / '_site/pages/page3.html').read_text()
+          class Tags(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.tags = []
+              def handle_starttag(self, tag, attrs):
+                  self.tags.append((tag, dict(attrs)))
+          parsed = Tags()
+          parsed.feed(html)
+          tags = parsed.tags
+          math = next(a for t,a in tags if a.get('data-label') == 'math-test-1')
+          assert 'math-exercise-cell' in math.get('class', '').split()
+          field = next(a for t,a in tags if t == 'input' and a.get('data-answer') == '5')
+          assert field['id'] in json.loads(math['data-fields']) and field['data-vars'] == 'x'
+          assert any(t == 'button' and 'math-check-btn' in a.get('class', '').split() for t,a in tags)
+          py = next(a for t,a in tags if a.get('data-ctm-id') == 'python-test-1')
+          assert 'py-exercise-cell' in py.get('class', '').split()
+          assert tags.index(('div', math)) < tags.index(('div', py)), 'authored math/Python order must remain unchanged'
+          payloads = re.findall(r'window\.__pyExercises.*?\.push\((\{.*?\})\);', html, re.S)
+          payload = next(json.loads(x) for x in payloads if json.loads(x).get('label') == 'python-test-1')
+          assert py['id'] == 'py-exercise-' + str(payload['id'])
+          assert payload['starter'] == 'def add(a, b):\n    pass' and payload['tests'].count('assert add(') == 2
+          assert any(t == 'script' and a.get('src', '').endswith('/py-exercise.js') for t,a in tags)
+          unhandled = {'math-exercise', '{math-exercise}', 'py-exercise', '{py-exercise}'}
+          assert not any(t in ('pre', 'code') and unhandled.intersection(a.get('class', '').split()) for t,a in tags)
+          print('PASS: actual math answer/Check binding and Python starter/tests/control binding; no unhandled exercise fences')
+          PYRENDER
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installed-native-task-proof
+          path: |
+            ${{ runner.temp }}/template task project/proof-evidence
+            ${{ runner.temp }}/template task project/_site/pages/page3.html
+            ${{ runner.temp }}/template task project/.private-extensions/resolved-repos.json
