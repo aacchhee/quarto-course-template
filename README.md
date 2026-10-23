@@ -109,6 +109,11 @@ from Git.
 
 ## Preview the course locally
 
+For the draft CTM native variants authoring tasks, see
+[Variant review in VS Code](docs/variants-authoring.md). These tasks require an
+installed authoring-capable assessment pack; the legacy setup above does not
+provide its native authoring distribution.
+
 Start the Quarto development server:
 
 ``` bash

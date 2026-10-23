@@ -12,7 +12,8 @@ __pycache__/
 *.pyc
 
 # VS Code
-.vscode/
+/.vscode/*
+!/.vscode/tasks.json
 
 # OS
 .DS_Store
