@@ -3,15 +3,14 @@
 A reusable Quarto website template for course material with interactive
 Python and mathematics exercises.
 
-The template is designed for course repositories that use private Quarto
-extensions maintained by `Erasmus-CTM`.
+The template uses a reviewed CTM Assessment pack from the public
+`Erasmus-CTM` source repositories.
 
 ## New course checklist
 
 1.  On GitHub, choose **Use this template → Create a new repository**.
-2.  Review the existing publishing workflow's GitHub App configuration if you
-    intend to use it. Local native authoring and its artifact-only task check
-    fetch public reviewed sources and require no App secrets.
+2.  Review `native-authoring-refs.json`, the shared explicit component tuple
+    used for local installation, artifact checks and normal publishing.
 3.  Clone the new course repository locally.
 4.  For the reviewed native authoring pack, install dependencies with
     `python -m pip install sympy==1.13.3 PyYAML==6.0.2`.
@@ -40,8 +39,8 @@ The template currently uses:
     -   hidden unit tests
     -   runs entirely in the browser
 
-The extensions themselves are private and are **not committed to this
-repository**.
+Installed extensions are **not committed to this repository**; the shared
+reviewed refs record which public source commits to install.
 
 ## Creating a new course
 
@@ -68,7 +67,7 @@ Install the following on your development machine:
 -   VS Code is recommended but optional
 
 The native authoring route above uses public reviewed sources. The retained
-legacy setup and publishing configuration below describe the separate older
+legacy reference sections below describe the separate older
 individual-extension workflow and its private-access assumptions. They do not
 install the native authoring pack. Use `scripts/install-native-authoring.py`
 to install or refresh that pack; do not rerun `scripts/setup.py` afterward.
@@ -149,7 +148,7 @@ again.
 The setup script performs a `git pull --ff-only` on existing plugin
 repositories and reinstalls the configured extensions.
 
-## Private extension configuration
+## Legacy private extension configuration
 
 Extensions are configured in:
 
@@ -186,9 +185,7 @@ The extensions can be enabled globally in `_quarto.yml`:
 
 ``` yaml
 filters:
-  - pyodide-interaktiv
-  - math-exercise
-  - py-exercise
+  - ctm-assessment
 ```
 
 ### Interactive Python cell
@@ -234,20 +231,23 @@ check the submitted code.
 
 ## GitHub Actions and GitHub Pages
 
-The repository contains a GitHub Actions workflow that:
+The normal publisher and artifact-only PR check both install the explicit
+`native-authoring-refs.json` tuple through `scripts/install-native-authoring.py`.
+The publisher pins Quarto1.8.27 and the native SymPy/PyYAML dependencies, then
+renders through the canonical `ctm-assessment` filter. It does not reinstall
+individual extensions from unpinned default branches or require App secrets.
 
-1.  checks out the course repository
-2.  installs Quarto
-3.  installs Python
-4.  creates a temporary GitHub App token
-5.  downloads the private Erasmus-CTM Quarto extensions
-6.  runs `scripts/setup.py`
-7.  renders the Quarto website
-8.  publishes the rendered site to the `gh-pages` branch
+The existing push triggers, concurrency and main-only Pages publication guard
+are unchanged. A PR workflow edit does not deploy a site. Publishing uses the
+ordinary required-approval mode: unapproved native variants stop the render;
+the publisher never switches to optional/review mode or approves questions.
 
-Pushing to `main` triggers the build and deployment.
+## Legacy GitHub App configuration
 
-## Required GitHub configuration
+The following App/security instructions are retained only as historical
+reference for optional legacy individual-extension workflows. They are not
+used by the current publisher or canonical native installation. Do not run
+legacy setup over the installed native pack.
 
 Repositories created from this template **do not inherit GitHub secrets
 or variables**.
@@ -282,7 +282,7 @@ and paste the complete private key for the GitHub App, including its
 
 Do not commit the private key to the repository.
 
-## GitHub App access
+## Legacy GitHub App access
 
 The GitHub App used by the workflow must be installed on the required
 private Erasmus-CTM repositories.
@@ -294,7 +294,7 @@ Repository permissions
 Contents: Read-only
 ```
 
-For the current template it should have access to:
+For that legacy configuration it would need access to:
 
 ``` text
 Erasmus-CTM/pyodide-interaktiv
@@ -302,11 +302,11 @@ Erasmus-CTM/math-exercise
 Erasmus-CTM/py-exercise
 ```
 
-The workflow creates a short-lived GitHub App token when it runs.
+A configured legacy workflow creates a short-lived GitHub App token.
 
 The private key itself remains stored as a GitHub Actions secret.
 
-## Security model
+## Legacy private-extension security model
 
 This template repository may be public.
 
@@ -341,7 +341,7 @@ private extension repositories
 quarto render
 ```
 
-## Adding another private Quarto extension
+## Legacy addition of a private Quarto extension
 
 First give the Erasmus-CTM GitHub App read access to the new repository.
 
@@ -375,10 +375,10 @@ quarto render
 
 ## Typical development workflow
 
-Update the private extensions if necessary:
+Refresh the reviewed pack if necessary:
 
 ``` bash
-python scripts/setup.py
+python scripts/install-native-authoring.py
 ```
 
 Preview locally:
@@ -418,9 +418,11 @@ GitHub Actions will render and publish the site.
 ├── pages/
 │   └── ...                     # example/course pages
 ├── scripts/
-│   └── setup.py
+│   ├── install-native-authoring.py
+│   └── setup.py                 # optional legacy reference
 ├── _quarto.yml
-├── quarto-extensions.yml
+├── native-authoring-refs.json  # current explicit pack tuple
+├── quarto-extensions.yml       # optional legacy configuration
 ├── .gitignore
 └── README.md
 ```
@@ -439,7 +441,7 @@ course material.
 
 ## Troubleshooting
 
-### `Could not clone private plugin`
+### Legacy `Could not clone private plugin`
 
 Check that:
 
@@ -454,10 +456,10 @@ git ls-remote https://github.com/Erasmus-CTM/pyodide-interaktiv.git
 
 ### `Could not run ... as a JSON filter`
 
-Check that the private extensions have been installed:
+Install the shared canonical pack:
 
 ``` bash
-python scripts/setup.py
+python scripts/install-native-authoring.py
 ```
 
 Then:
@@ -466,14 +468,12 @@ Then:
 quarto list extensions
 ```
 
-### GitHub Actions cannot clone an extension
+### GitHub Actions cannot fetch the reviewed pack
 
-Check:
-
--   `ERASMUS_CTM_APP_CLIENT_ID`
--   `ERASMUS_CTM_APP_PRIVATE_KEY`
--   that the GitHub App is installed on the private extension repository
--   that the App has `Contents: Read-only`
+Check network access to the public source repositories and that the exact
+commits in `native-authoring-refs.json` remain available. The current publisher
+uses the same canonical helper as local setup; it does not read the legacy
+GitHub App variables or private-key secret.
 
 ### Local site is stale
 

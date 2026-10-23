@@ -26,6 +26,12 @@ public source repositories are required. This is a reviewed draft tuple, not a
 release or a student rollout authorization. Do not run legacy `scripts/setup.py`
 afterward: it installs individual extensions independently of this tuple.
 
+Normal publishing uses this same helper, explicit refs and canonical
+`ctm-assessment` filter. It retains required approval mode: an unapproved native
+question stops rendering. The workflow neither approves questions nor enables
+review mode to bypass that gate. Existing main-only publication triggers remain
+unchanged; the PR check renders only the ordinary example page as an artifact.
+
 ## Prepare and review one question
 
 Save the authored `.qmd` or included Markdown file. Its `math-exercise` block
